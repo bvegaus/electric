@@ -1,0 +1,14 @@
+{
+    "cuarentena": {
+        "train": "https://www.dropbox.com/s/8avbtelx7foybbo/train.csv?dl=1",
+        "test": "https://www.dropbox.com/s/56o740n2sk1lpku/test.csv?dl=1"
+    },
+    "fraude": {
+        "train": "https://www.dropbox.com/s/w5rjoy108ym6m2l/train.csv?dl=1",
+        "test": "https://www.dropbox.com/s/x85hnuoqv2gvimq/test.csv?dl=1"
+    },
+    "normal": {
+        "train": "https://www.dropbox.com/s/xfg6oa8w8ax7e5k/train.csv?dl=1",
+        "test": "https://www.dropbox.com/s/6qc5gv9i85desne/test.csv?dl=1"
+    }
+}
