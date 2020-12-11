@@ -1,14 +1,14 @@
 {
     "cuarentena": {
-        "train": "https://www.dropbox.com/s/8avbtelx7foybbo/train.csv?dl=1",
-        "test": "https://www.dropbox.com/s/56o740n2sk1lpku/test.csv?dl=1"
+        "train": "https://www.dropbox.com/s/t857z4a1ofuucde/train.csv?dl=1",
+        "test": "https://www.dropbox.com/s/xjj1955hyuad9so/test.csv?dl=1"
     },
     "fraude": {
-        "train": "https://www.dropbox.com/s/w5rjoy108ym6m2l/train.csv?dl=1",
-        "test": "https://www.dropbox.com/s/x85hnuoqv2gvimq/test.csv?dl=1"
+        "train": "https://www.dropbox.com/s/np4hg8v7bykacco/train.csv?dl=1",
+        "test": "https://www.dropbox.com/s/ekj675082j8od7j/test.csv?dl=1"
     },
     "normal": {
-        "train": "https://www.dropbox.com/s/xfg6oa8w8ax7e5k/train.csv?dl=1",
-        "test": "https://www.dropbox.com/s/6qc5gv9i85desne/test.csv?dl=1"
+        "train": "https://www.dropbox.com/s/ndae94ophgvsn1r/train.csv?dl=1",
+        "test": "https://www.dropbox.com/s/u74lia1zaa6oice/test.csv?dl=1"
     }
 }
