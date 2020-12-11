@@ -87,9 +87,9 @@ def read_data(dataset_path, normalization_method, past_history_factor):
     # read normalization params
     norm_params = None
     with open(
-            os.path.normpath(dataset_path)
-            + "/{}/norm_params.json".format(normalization_method),
-            "r",
+        os.path.normpath(dataset_path)
+        + "/{}/norm_params.json".format(normalization_method),
+        "r",
     ) as read_file:
         norm_params = json.load(read_file)
 
@@ -119,21 +119,21 @@ def read_data(dataset_path, normalization_method, past_history_factor):
 
 
 def _run_experiment(
-        gpu_device,
-        dataset,
-        dataset_path,
-        results_path,
-        csv_filepath,
-        metrics,
-        epochs,
-        normalization_method,
-        past_history_factor,
-        max_steps_per_epoch,
-        batch_size,
-        learning_rate,
-        model_name,
-        model_index,
-        model_args,
+    gpu_device,
+    dataset,
+    dataset_path,
+    results_path,
+    csv_filepath,
+    metrics,
+    epochs,
+    normalization_method,
+    past_history_factor,
+    max_steps_per_epoch,
+    batch_size,
+    learning_rate,
+    model_name,
+    model_index,
+    model_args,
 ):
     import gc
     import tensorflow as tf
@@ -161,16 +161,13 @@ def _run_experiment(
     y_test = tf.convert_to_tensor(y_test)
     y_test_denorm = tf.convert_to_tensor(y_test_denorm)
 
-    # Suponiendo que X_train y y_train son una matriz de ventanas, y lo mismo para X_test, y_train e y_test_denorm
-
-    forecast_horizon = y_test.shape[0][1]  # He añadido el [0] para que comprueben el primer elemento de la matriz
-    past_history = x_test.shape[0][1]
+    forecast_horizon = y_test.shape[1]
+    past_history = x_test.shape[1]
     steps_per_epoch = min(
         int(np.ceil(x_train.shape[0] / batch_size)), max_steps_per_epoch,
     )
 
     optimizer = tf.optimizers.Adam(learning_rate=learning_rate)
-
     model = create_model(
         model_name,
         x_train.shape,
@@ -181,7 +178,6 @@ def _run_experiment(
     )
     print(model.summary())
 
-    '''
     training_time_0 = time.time()
     history = model.fit(
         x_train,
@@ -207,52 +203,6 @@ def _run_experiment(
         test_metrics = evaluate(y_test_denorm, test_forecast, metrics)
     else:
         test_metrics = {}
-    '''
-    # Introduzco mi variación en el código, la parte de arriba es la original
-
-    resultados = []
-
-    for i in range(len(x_train)):
-
-        training_time_0 = time.time()
-        history = model.fit(
-            x_train[i],
-            y_train[i],
-            batch_size=batch_size,
-            epochs=epochs,
-            steps_per_epoch=steps_per_epoch,
-            validation_data=(x_test[i], y_test[i]),
-            shuffle=True,
-        )
-
-        training_time = time.time() - training_time_0
-
-        # Get validation metrics
-        test_time_0 = time.time()
-        test_forecast = model(x_test[i]).numpy()
-        test_time = time.time() - test_time_0
-
-        for j, nparams in enumerate(norm_params):
-            test_forecast[j] = denormalize(
-                test_forecast[j], nparams, method=normalization_method,
-            )
-        if metrics:
-            test_metrics_window = evaluate(y_test_denorm[i], test_forecast, metrics)
-            resultados.append(test_metrics)
-        else:
-            test_metrics = {}
-
-    # Generación del dict medio con los resultados para poder guardarlos
-
-    tes_metrics = dict()
-    for i in range(len(metrics)):
-        resultados_metrica = []
-        for dictionary in range(len(resultados)):
-            resultados_metrica.append(dictionary[metrics[i]]) # obtenemos el resultado de una ventana para una metrica
-
-        tes_metrics[metrics[i]] = np.mean(resultados_metrica)
-
-
 
     # Save results
     predictions_path = "{}/{}/{}/{}/{}/{}/{}/{}/".format(
@@ -303,22 +253,22 @@ def _run_experiment(
 
 
 def run_experiment(
-        error_dict,
-        gpu_device,
-        dataset,
-        dataset_path,
-        results_path,
-        csv_filepath,
-        metrics,
-        epochs,
-        normalization_method,
-        past_history_factor,
-        max_steps_per_epoch,
-        batch_size,
-        learning_rate,
-        model_name,
-        model_index,
-        model_args,
+    error_dict,
+    gpu_device,
+    dataset,
+    dataset_path,
+    results_path,
+    csv_filepath,
+    metrics,
+    epochs,
+    normalization_method,
+    past_history_factor,
+    max_steps_per_epoch,
+    batch_size,
+    learning_rate,
+    model_name,
+    model_index,
+    model_args,
 ):
     try:
         _run_experiment(
@@ -395,16 +345,16 @@ def main(args):
         )
 
         for epochs, normalization_method, past_history_factor in itertools.product(
-                parameters["epochs"],
-                parameters["normalization_method"],
-                parameters["past_history_factor"],
+            parameters["epochs"],
+            parameters["normalization_method"],
+            parameters["past_history_factor"],
         ):
             for batch_size, learning_rate in itertools.product(
-                    parameters["batch_size"], parameters["learning_rate"],
+                parameters["batch_size"], parameters["learning_rate"],
             ):
                 for model_name in models:
                     for model_index, model_args in enumerate(
-                            product(**parameters["model_params"][model_name])
+                        product(**parameters["model_params"][model_name])
                     ):
                         experiments_index += 1
                         if experiments_index <= current_index:
@@ -486,5 +436,5 @@ if __name__ == "__main__":
         help="Metrics to use for evaluation. If not define it will use all possible metrics.",
     )
     args = parser.parse_args()
-
+    
     main(args)
