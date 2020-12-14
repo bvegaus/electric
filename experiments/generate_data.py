@@ -48,7 +48,6 @@ with open("../data/datasets.json") as f:
 
 DATASET_NAMES = [d for d in list(DATASETS.keys())]
 
-
 def generate_dataset(args):
     dataset, norm_method, past_history_factor = args
 
@@ -58,7 +57,7 @@ def generate_dataset(args):
     train = read_ts_dataset("../data/{}/train.csv".format(dataset))
     test = read_ts_dataset("../data/{}/test.csv".format(dataset))
 
-    forecast_horizon = 36 #test.shape[1]
+    forecast_horizon = 24 #test.shape[1]
 
     print(
         dataset,
@@ -76,6 +75,7 @@ def generate_dataset(args):
         train, test, norm_method, dtype="float32"
     )
 
+
     norm_params_json = [{k: float(p[k]) for k in p} for p in norm_params]
     norm_params_json = json.dumps(norm_params_json)
 
@@ -85,17 +85,15 @@ def generate_dataset(args):
     # Format training and test input/output data using the moving window strategy
     past_history = int(forecast_horizon * past_history_factor)
 
+
     x_train, y_train, x_test, y_test = moving_windows_preprocessing(
         train, test, past_history, forecast_horizon, np.float32, n_cores=NUM_CORES
     )
 
     y_test_denorm = np.copy(y_test)
-    i = 0
-    for nparams in norm_params:
-        if len(train[i]) < past_history:
-            continue
-        y_test_denorm[i] = denormalize(y_test[i], nparams, method=norm_method)
-        i += 1
+    #i = 0
+    for i in range(y_test.shape[0]):
+        y_test_denorm[i] = denormalize(y_test[i], norm_params[0], method=norm_method)
 
     print("TRAINING DATA")
     print("Input shape", x_train.shape)
@@ -150,4 +148,5 @@ for i, args in tqdm(enumerate(params)):
             i, len(params), dataset, norm_method, past_history_factor, time.time() - t0
         )
     )
+
 
