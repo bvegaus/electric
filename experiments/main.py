@@ -9,10 +9,6 @@ import numpy as np
 import pandas as pd
 from metrics import METRICS, evaluate
 from preprocessing import denormalize
-from collections import namedtuple
-
-#--datasets ${DATASETS[@]} --models ${MODELS[@]} --gpu ${GPU} --parameters  $PARAMETERS --output $OUTPUT --csv_filename $CSV_FILENAME > $LOG_FILE 2>&1 &
-Args = namedtuple('Args', 'datasets, models, gpu, parameters, output, csv_filename, metrics')
 
 
 def notify_slack(msg, webhook=None):
@@ -441,7 +437,6 @@ if __name__ == "__main__":
         default=None,
         help="Metrics to use for evaluation. If not define it will use all possible metrics.",
     )
-    #args = parser.parse_args()
-    args = Args(['../data/cuarentena', '../data/fraude', '../data/normal'], ['lstm', 'cnn', 'tcn'], 0, './parameters.json', '../results', 'results.csv',None)
+    args = parser.parse_args()
 
     main(args)
