@@ -238,7 +238,7 @@ def _run_experiment(
             )
         if metrics:
             test_metrics_window = evaluate(y_test_denorm[i], test_forecast, metrics)
-            resultados.append(test_metrics)
+            resultados.append(test_metrics_window)
         else:
             test_metrics = {}
 
