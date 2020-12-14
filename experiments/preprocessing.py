@@ -103,6 +103,7 @@ def normalize_dataset(train, test, normalization_method, dtype="float32"):
 
 def _moving_windows_preprocessing(args):
     # Format training and test input/output data using the moving window strategy
+
     train, test, past_history, forecast_horizon, dtype, core = args
     x_train, y_train = [], []
     x_test, y_test = [], []
@@ -110,9 +111,10 @@ def _moving_windows_preprocessing(args):
     for i, ts in tqdm(
         list(enumerate(train)), desc="Moving window preprocesing train ({})".format(core)
     ):
+
         if len(ts) >= past_history + forecast_horizon:
             # Training data
-            for j in range(past_history, ts.shape[0] - forecast_horizon + 1):
+            for j in range(past_history, ts.shape[0] - forecast_horizon + 1, 24):
                 indices = list(range(j - past_history, j))
                 # Reshape data from (past_history,) to (past_history, 1)
                 x_train.append(ts[indices].reshape((past_history, 1)))
@@ -127,7 +129,7 @@ def _moving_windows_preprocessing(args):
     ):
         if len(ts) >= past_history + forecast_horizon:
             # Testing data
-            for j in range(past_history, ts.shape[0] - forecast_horizon + 1):
+            for j in range(past_history, ts.shape[0] - forecast_horizon + 1, 24):
                 indices = list(range(j - past_history, j))
                 # Reshape data from (past_history,) to (past_history, 1)
                 x_test.append(ts[indices].reshape((past_history, 1)))
