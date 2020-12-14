@@ -9,6 +9,10 @@ import numpy as np
 import pandas as pd
 from metrics import METRICS, evaluate
 from preprocessing import denormalize
+from collections import namedtuple
+
+#--datasets ${DATASETS[@]} --models ${MODELS[@]} --gpu ${GPU} --parameters  $PARAMETERS --output $OUTPUT --csv_filename $CSV_FILENAME > $LOG_FILE 2>&1 &
+Args = namedtuple('Args', 'datasets, models, gpu, parameters, output, csv_filename, metrics')
 
 
 def notify_slack(msg, webhook=None):
@@ -102,12 +106,13 @@ def read_data(dataset_path, normalization_method, past_history_factor):
     y_train = np.load(tmp_data_path + "y_train.np.npy")
     x_test = np.load(tmp_data_path + "x_test.np.npy")
     y_test = np.load(tmp_data_path + "y_test.np.npy")
-    y_test_denorm = np.asarray(
-        [
-            denormalize(y_test[i], norm_params[i], normalization_method)
-            for i in range(y_test.shape[0])
-        ]
-    )
+    y_test_denorm = np.load(tmp_data_path + "y_test_denorm.np.npy")
+    # y_test_denorm = np.asarray(
+    #     [
+    #         denormalize(y_test[i], norm_params[i], normalization_method)
+    #         for i in range(y_test.shape[0])
+    #     ]
+    # )
     print("TRAINING DATA")
     print("Input shape", x_train.shape)
     print("Output_shape", y_train.shape)
@@ -195,7 +200,8 @@ def _run_experiment(
     test_forecast = model(x_test).numpy()
     test_time = time.time() - test_time_0
 
-    for i, nparams in enumerate(norm_params):
+    for i in range(test_forecast.shape[0]):
+        nparams = norm_params[i]
         test_forecast[i] = denormalize(
             test_forecast[i], nparams, method=normalization_method,
         )
@@ -435,6 +441,7 @@ if __name__ == "__main__":
         default=None,
         help="Metrics to use for evaluation. If not define it will use all possible metrics.",
     )
-    args = parser.parse_args()
-    
+    #args = parser.parse_args()
+    args = Args(['../data/cuarentena', '../data/fraude', '../data/normal'], ['lstm', 'cnn', 'tcn'], 0, './parameters.json', '../results', 'results.csv',None)
+
     main(args)
