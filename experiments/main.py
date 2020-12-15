@@ -197,7 +197,7 @@ def _run_experiment(
     test_time = time.time() - test_time_0
 
     for i in range(test_forecast.shape[0]):
-        nparams = norm_params[i]
+        nparams = norm_params[0]
         test_forecast[i] = denormalize(
             test_forecast[i], nparams, method=normalization_method,
         )
