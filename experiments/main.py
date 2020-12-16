@@ -162,8 +162,10 @@ def _run_experiment(
     y_test = tf.convert_to_tensor(y_test)
     y_test_denorm = tf.convert_to_tensor(y_test_denorm)
 
-    forecast_horizon = y_test.shape[1]
-    past_history = x_test.shape[1]
+    # Suponiendo que X_train y y_train son una matriz de ventanas, y lo mismo para X_test, y_train e y_test_denorm
+
+    forecast_horizon = y_test.shape[0][1]  # He añadido el [0] para que comprueben el primer elemento de la matriz
+    past_history = x_test.shape[0][1]
     steps_per_epoch = min(
         int(np.ceil(x_train.shape[0] / batch_size)), max_steps_per_epoch,
     )
@@ -180,7 +182,35 @@ def _run_experiment(
     )
     print(model.summary())
 
-    # Cambios para evaluar por ventanas
+    '''
+    training_time_0 = time.time()
+    history = model.fit(
+        x_train,
+        y_train,
+        batch_size=batch_size,
+        epochs=epochs,
+        steps_per_epoch=steps_per_epoch,
+        validation_data=(x_test, y_test),
+        shuffle=True,
+    )
+    training_time = time.time() - training_time_0
+
+    # Get validation metrics
+    test_time_0 = time.time()
+    test_forecast = model(x_test).numpy()
+    test_time = time.time() - test_time_0
+
+    for i in range(test_forecast.shape[0]):
+        nparams = norm_params[0]
+        test_forecast[i] = denormalize(
+            test_forecast[i], nparams, method=normalization_method,
+        )
+    if metrics:
+        test_metrics = evaluate(y_test_denorm, test_forecast, metrics)
+    else:
+        test_metrics = {}
+    '''
+    # Introduzco mi variación en el código, la parte de arriba es la original
 
     resultados = []
 
