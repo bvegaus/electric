@@ -87,9 +87,9 @@ def read_data(dataset_path, normalization_method, past_history_factor):
     # read normalization params
     norm_params = None
     with open(
-        os.path.normpath(dataset_path)
-        + "/{}/norm_params.json".format(normalization_method),
-        "r",
+            os.path.normpath(dataset_path)
+            + "/{}/norm_params.json".format(normalization_method),
+            "r",
     ) as read_file:
         norm_params = json.load(read_file)
 
@@ -120,21 +120,21 @@ def read_data(dataset_path, normalization_method, past_history_factor):
 
 
 def _run_experiment(
-    gpu_device,
-    dataset,
-    dataset_path,
-    results_path,
-    csv_filepath,
-    metrics,
-    epochs,
-    normalization_method,
-    past_history_factor,
-    max_steps_per_epoch,
-    batch_size,
-    learning_rate,
-    model_name,
-    model_index,
-    model_args,
+        gpu_device,
+        dataset,
+        dataset_path,
+        results_path,
+        csv_filepath,
+        metrics,
+        epochs,
+        normalization_method,
+        past_history_factor,
+        max_steps_per_epoch,
+        batch_size,
+        learning_rate,
+        model_name,
+        model_index,
+        model_args,
 ):
     import gc
     import tensorflow as tf
@@ -255,22 +255,22 @@ def _run_experiment(
 
 
 def run_experiment(
-    error_dict,
-    gpu_device,
-    dataset,
-    dataset_path,
-    results_path,
-    csv_filepath,
-    metrics,
-    epochs,
-    normalization_method,
-    past_history_factor,
-    max_steps_per_epoch,
-    batch_size,
-    learning_rate,
-    model_name,
-    model_index,
-    model_args,
+        error_dict,
+        gpu_device,
+        dataset,
+        dataset_path,
+        results_path,
+        csv_filepath,
+        metrics,
+        epochs,
+        normalization_method,
+        past_history_factor,
+        max_steps_per_epoch,
+        batch_size,
+        learning_rate,
+        model_name,
+        model_index,
+        model_args,
 ):
     try:
         _run_experiment(
@@ -347,16 +347,16 @@ def main(args):
         )
 
         for epochs, normalization_method, past_history_factor in itertools.product(
-            parameters["epochs"],
-            parameters["normalization_method"],
-            parameters["past_history_factor"],
+                parameters["epochs"],
+                parameters["normalization_method"],
+                parameters["past_history_factor"],
         ):
             for batch_size, learning_rate in itertools.product(
-                parameters["batch_size"], parameters["learning_rate"],
+                    parameters["batch_size"], parameters["learning_rate"],
             ):
                 for model_name in models:
                     for model_index, model_args in enumerate(
-                        product(**parameters["model_params"][model_name])
+                            product(**parameters["model_params"][model_name])
                     ):
                         experiments_index += 1
                         if experiments_index <= current_index:

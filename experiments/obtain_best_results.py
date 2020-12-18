@@ -25,7 +25,7 @@ def save_best_results():
     if not os.path.exists('../results_best/'):
         os.mkdir('../results_best/')
 
-    result_best_models.to_csv('../results_best/results_best.csv', sep=';')
+    result_best_models.to_csv('../results_best/results_best.csv', sep=';', index=False)
     return result_best_models
 
 
