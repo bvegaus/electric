@@ -57,7 +57,7 @@ def save_best_predictions(paths):
             os.mkdir(dir_dest + dataset)
 
         shutil.copyfile(dir_res + path, dir_dest + '/' + dataset + '/' + nombre)
-    print('Archivos copiados correctamente')
+    print('[INFO] Results of the best models saved in ./results_best')
 
 
 def main():
