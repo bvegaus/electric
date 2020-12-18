@@ -60,11 +60,11 @@ def save_best_predictions(paths):
     print('[INFO] Results of the best models saved in ./results_best')
 
 
-def main():
+def obtain_best_results():
     result_best_models = save_best_results()
     paths = obtain_paths_predictions(result_best_models)
     save_best_predictions(paths)
 
 
 if __name__ == '__main__':
-    main()
+    obtain_best_results()

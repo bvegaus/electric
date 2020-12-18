@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from metrics import METRICS, evaluate
 from preprocessing import denormalize
-
+from obtain_best_results import obtain_best_results
 
 def notify_slack(msg, webhook=None):
     if webhook is None:
@@ -440,3 +440,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(args)
+    obtain_best_results()
