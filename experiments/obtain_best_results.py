@@ -1,7 +1,9 @@
-import pandas as pd
-import numpy as np
+import openpyxl
 import os
 import shutil
+import pandas as pd
+import numpy as np
+
 
 
 def save_best_results():
@@ -18,16 +20,52 @@ def save_best_results():
                                       index_col='Unnamed: 0')
         for model in models:
             minimum = np.min(results_dataset.loc[results_dataset['MODEL'] == model, ['wape']]).values[0]
-            best_model = results_dataset.loc[(results_dataset['wape'] == minimum) & (results_dataset['MODEL'] == model),
-                         :]
+            best_model = results_dataset.loc[(results_dataset['wape'] == minimum) &
+                                             (results_dataset['MODEL'] == model), :]
             result_best_models = result_best_models.append(best_model)
 
     if not os.path.exists('../results_best/'):
         os.mkdir('../results_best/')
 
-    result_best_models.to_csv('../results_best/results_best.csv', sep=';', index=False)
+    if not os.path.exists('../results_best/lists/'):
+        os.mkdir('../results_best/lists/')
+
+    result_best_models.to_csv('../results_best/lists/results_best.csv', sep=';', index=False)
     return result_best_models
 
+
+def save_comparative_tables(result_best_models, metric):
+    """It makes an excel with a comparative table of each model for any dataset and forecast horizon"""
+    models = result_best_models['MODEL'].unique()
+    datasets = result_best_models['DATASET'].unique()
+    forecast_horizons = result_best_models['FORECAST_HORIZON'].unique()
+
+
+    if not os.path.exists('../results_best/tables/'):
+        os.mkdir('../results_best/tables/')
+
+    excel_path = '../results_best/tables/table_best_models_'+metric+'.xlsx'
+    excel = pd.ExcelWriter(excel_path, engine='openpyxl')
+    excel.book = openpyxl.Workbook()
+
+    for horizon in forecast_horizons:
+
+        res = pd.DataFrame(columns=models)
+        for dataset in datasets:
+            row = []
+
+            for model in models:
+                row.append(result_best_models.loc[(result_best_models['DATASET'] == dataset) &
+                                                         (result_best_models['FORECAST_HORIZON'] == horizon) &
+                                                         (result_best_models['MODEL'] == model), :]['wape'].values[0])
+            res.loc[dataset, :] = row
+        res.to_excel(excel, sheet_name=dataset + '_' + str(horizon))
+
+    excel.save()
+    default_sheet = excel.book[excel.book.sheetnames[0]]
+    excel.book.remove(default_sheet)
+
+    excel.close()
 
 def obtain_paths_predictions(result_best_models):
     """It obtains the path of the file .npy, which contains the prediction of the model"""
@@ -47,7 +85,11 @@ def obtain_paths_predictions(result_best_models):
 def save_best_predictions(paths):
     """It saves the predictions in the dir ./results_best"""
     dir_res = '../results/'
-    dir_dest = '../results_best/'
+    dir_dest = '../results_best/predictions/'
+
+    if not os.path.exists(dir_dest):
+        os.mkdir(dir_dest)
+
     for path in paths:
         dataset = path.split('/')[0].strip()
         modelo = path.split('/')[-2].strip()
@@ -62,6 +104,7 @@ def save_best_predictions(paths):
 
 def obtain_best_results():
     result_best_models = save_best_results()
+    save_comparative_tables(result_best_models, 'wape')
     paths = obtain_paths_predictions(result_best_models)
     save_best_predictions(paths)
 
