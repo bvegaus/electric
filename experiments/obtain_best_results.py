@@ -57,7 +57,7 @@ def save_comparative_tables(result_best_models, metric):
                                                   (result_best_models['FORECAST_HORIZON'] == horizon) &
                                                   (result_best_models['MODEL'] == model), :][metric].values[0])
             res.loc[dataset, :] = row
-        res.to_excel(excel, sheet_name=dataset + '_' + str(horizon))
+        res.to_excel(excel, sheet_name=str(horizon))
 
     excel.save()
     default_sheet = excel.book[excel.book.sheetnames[0]]
