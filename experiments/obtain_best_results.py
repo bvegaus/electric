@@ -5,9 +5,8 @@ import pandas as pd
 import numpy as np
 
 
-
-def save_best_results():
-    """ It makes a csv with the best model for each dataset in wape terms """
+def save_best_results(metric):
+    """ It makes a csv with the best model for each dataset in the terms of the selected metric """
     datasets = os.listdir('../results/')
     base = pd.read_csv('../results/' + datasets[0] + '/results.csv', error_bad_lines=False, sep=';',
                        index_col='Unnamed: 0')
@@ -19,8 +18,8 @@ def save_best_results():
         results_dataset = pd.read_csv('../results/' + dataset + '/results.csv', error_bad_lines=False, sep=';',
                                       index_col='Unnamed: 0')
         for model in models:
-            minimum = np.min(results_dataset.loc[results_dataset['MODEL'] == model, ['wape']]).values[0]
-            best_model = results_dataset.loc[(results_dataset['wape'] == minimum) &
+            minimum = np.min(results_dataset.loc[results_dataset['MODEL'] == model, [metric]]).values[0]
+            best_model = results_dataset.loc[(results_dataset[metric] == minimum) &
                                              (results_dataset['MODEL'] == model), :]
             result_best_models = result_best_models.append(best_model)
 
@@ -30,7 +29,7 @@ def save_best_results():
     if not os.path.exists('../results_best/lists/'):
         os.mkdir('../results_best/lists/')
 
-    result_best_models.to_csv('../results_best/lists/results_best.csv', sep=';', index=False)
+    result_best_models.to_csv('../results_best/lists/results_best_' + metric + '.csv', sep=';', index=False)
     return result_best_models
 
 
@@ -40,11 +39,10 @@ def save_comparative_tables(result_best_models, metric):
     datasets = result_best_models['DATASET'].unique()
     forecast_horizons = result_best_models['FORECAST_HORIZON'].unique()
 
-
     if not os.path.exists('../results_best/tables/'):
         os.mkdir('../results_best/tables/')
 
-    excel_path = '../results_best/tables/table_best_models_'+metric+'.xlsx'
+    excel_path = '../results_best/tables/table_best_models_' + metric + '.xlsx'
     excel = pd.ExcelWriter(excel_path, engine='openpyxl')
     excel.book = openpyxl.Workbook()
 
@@ -56,8 +54,8 @@ def save_comparative_tables(result_best_models, metric):
 
             for model in models:
                 row.append(result_best_models.loc[(result_best_models['DATASET'] == dataset) &
-                                                         (result_best_models['FORECAST_HORIZON'] == horizon) &
-                                                         (result_best_models['MODEL'] == model), :]['wape'].values[0])
+                                                  (result_best_models['FORECAST_HORIZON'] == horizon) &
+                                                  (result_best_models['MODEL'] == model), :][metric].values[0])
             res.loc[dataset, :] = row
         res.to_excel(excel, sheet_name=dataset + '_' + str(horizon))
 
@@ -66,6 +64,7 @@ def save_comparative_tables(result_best_models, metric):
     excel.book.remove(default_sheet)
 
     excel.close()
+
 
 def obtain_paths_predictions(result_best_models):
     """It obtains the path of the file .npy, which contains the prediction of the model"""
@@ -82,10 +81,14 @@ def obtain_paths_predictions(result_best_models):
     return paths
 
 
-def save_best_predictions(paths):
+def save_best_predictions(paths, metric):
     """It saves the predictions in the dir ./results_best"""
     dir_res = '../results/'
-    dir_dest = '../results_best/predictions/'
+    dir_predictions = '../results_best/predictions/'
+    dir_dest = dir_predictions+metric+'/'
+
+    if not os.path.exists(dir_predictions):
+        os.mkdir(dir_predictions)
 
     if not os.path.exists(dir_dest):
         os.mkdir(dir_dest)
@@ -99,14 +102,17 @@ def save_best_predictions(paths):
             os.mkdir(dir_dest + dataset)
 
         shutil.copyfile(dir_res + path, dir_dest + '/' + dataset + '/' + nombre)
-    print('[INFO] Results of the best models saved in ./results_best')
+
 
 
 def obtain_best_results():
-    result_best_models = save_best_results()
-    save_comparative_tables(result_best_models, 'wape')
-    paths = obtain_paths_predictions(result_best_models)
-    save_best_predictions(paths)
+    metrics = ['wape', 'TRAINING_TIME']
+    for metric in metrics:
+        result_best_models = save_best_results(metric)
+        save_comparative_tables(result_best_models, metric)
+        paths = obtain_paths_predictions(result_best_models)
+        save_best_predictions(paths, metric)
+    print('[INFO] Results of the best models saved in ./results_best. Models evaluated by:', metrics)
 
 
 if __name__ == '__main__':
