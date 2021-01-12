@@ -2,7 +2,7 @@ import openpyxl
 import os
 import pandas as pd
 import numpy as np
-from experiments.metrics import METRICS
+from metrics import METRICS
 
 
 def get_models(datasets):
@@ -33,8 +33,8 @@ def get_best_prediction(results, metric, model, dataset):
 
 def create_excel():
     """It create the excel where the results are going to be saved"""
-    if not os.path.exists('../result_best/'):
-        os.mkdir('../result_best/')
+    if not os.path.exists('../results_best/'):
+        os.mkdir('../results_best/')
 
     excel = pd.ExcelWriter('../results_best/metrics_by_predictions.xlsx', engine='openpyxl')
     excel.book = openpyxl.Workbook()
@@ -65,7 +65,6 @@ def calculate_metrics(datasets, models, metrics, excel):
 
 def save_excel(excel):
     """It saves the excel with the information"""
-    # excel.save()
     default_sheet = excel.book[excel.book.sheetnames[0]]
     excel.book.remove(default_sheet)
     excel.save()
@@ -77,11 +76,13 @@ def get_metrics():
     of an excel"""
     metrics = ['mse', 'rmse', 'mae', 'wape', 'mase']
     datasets = os.listdir('../results/')
-    excel = create_excel()
     models = get_models(datasets)
 
+    excel = create_excel()
     excel = calculate_metrics(datasets, models, metrics, excel)
     save_excel(excel)
+
+    print('[INFO] Values of the metrics by predictions saved into "./results_best/metrics_by_predictions.xlsx"')
 
 
 if __name__ == '__main__':
