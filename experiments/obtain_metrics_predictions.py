@@ -15,6 +15,7 @@ def get_models(datasets):
 def get_best_prediction(results, metric, model, dataset):
     """It calculates the best prediction of one model in one dataset"""
     model_rows = results.loc[results['MODEL'] == model, :]
+    best_value = 9999999999
     for index, row in model_rows.iterrows():
         path_y_test_denorm = '../data/' + dataset + '/' + np.str(row['NORMALIZATION']) + '/' + \
                              np.str(row['PAST_HISTORY_FACTOR']) + '/'
@@ -28,7 +29,10 @@ def get_best_prediction(results, metric, model, dataset):
 
         value = METRICS[metric](y_test_denorm, preds)
 
-    return value
+        if value < best_value:
+            best_value = value
+
+    return best_value
 
 
 def create_excel():
