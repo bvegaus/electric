@@ -31,48 +31,62 @@ def get_best_prediction(results, metric, model, dataset):
 
         if value < best_value:
             best_value = value
+            best_model = row['MODEL_DESCRIPTION']
 
-    return best_value
+    return best_value, best_model
 
 
-def create_excel():
-    """It create the excel where the results are going to be saved"""
+def create_excels():
+    """It create the excels where the results are going to be saved"""
     if not os.path.exists('../results_best/'):
         os.mkdir('../results_best/')
 
-    excel = pd.ExcelWriter('../results_best/metrics_by_predictions.xlsx', engine='openpyxl')
-    excel.book = openpyxl.Workbook()
-    return excel
+    excel_metrics = pd.ExcelWriter('../results_best/metrics_by_predictions.xlsx', engine='openpyxl')
+    excel_metrics.book = openpyxl.Workbook()
+
+    excel_models = pd.ExcelWriter('../results_best/metrics_by_predictions_models.xlsx', engine='openpyxl')
+    excel_models.book = openpyxl.Workbook()
+    return excel_metrics, excel_models
 
 
-def calculate_metrics(datasets, models, metrics, excel):
+def calculate_metrics(datasets, models, metrics, excel_metrics, excel_models):
     """It calculate the metrics, of each model in each dataset, and save them into the excel"""
     columns_names = ['dataset'] + models
 
     for metric in metrics:
-        res = pd.DataFrame(columns=columns_names).set_index('dataset')
+        res_metric = pd.DataFrame(columns=columns_names).set_index('dataset')
+        res_model = pd.DataFrame(columns=columns_names).set_index('dataset')
         for dataset in datasets:
 
             results = pd.read_csv('../results/' + dataset + '/results.csv', sep=';', index_col='Unnamed: 0')
-            row = []
+            row_metric = []
+            row_model = []
 
             for model in models:
-                value = get_best_prediction(results, metric, model, dataset)
-                row.append(value)
+                value, model_value = get_best_prediction(results, metric, model, dataset)
+                row_metric.append(value)
+                row_model.append(model_value)
 
-            res.loc[dataset, :] = row
+            res_metric.loc[dataset, :] = row_metric
+            res_model.loc[dataset, :] = row_model
 
-        res.to_excel(excel, sheet_name=metric)
+        res_metric.to_excel(excel_metrics, sheet_name=metric)
+        res_model.to_excel(excel_models, sheet_name=metric)
 
-    return excel
+    return excel_metrics, excel_models
 
 
-def save_excel(excel):
-    """It saves the excel with the information"""
-    default_sheet = excel.book[excel.book.sheetnames[0]]
-    excel.book.remove(default_sheet)
-    excel.save()
-    excel.close()
+def save_excels(excel_metrics, excel_models):
+    """It saves the excels with the information"""
+    default_sheet_metrics = excel_metrics.book[excel_metrics.book.sheetnames[0]]
+    excel_metrics.book.remove(default_sheet_metrics)
+    excel_metrics.save()
+    excel_metrics.close()
+
+    default_sheet_models = excel_models.book[excel_models.book.sheetnames[0]]
+    excel_models.book.remove(default_sheet_models)
+    excel_models.save()
+    excel_models.close()
 
 
 def get_metrics():
@@ -82,11 +96,12 @@ def get_metrics():
     datasets = os.listdir('../results/')
     models = get_models(datasets)
 
-    excel = create_excel()
-    excel = calculate_metrics(datasets, models, metrics, excel)
-    save_excel(excel)
+    excel_metrics, excel_models = create_excels()
+    excel_metrics, excel_models = calculate_metrics(datasets, models, metrics, excel_metrics, excel_models)
+    save_excels(excel_metrics, excel_models)
 
     print('[INFO] Values of the metrics by predictions saved into "./results_best/metrics_by_predictions.xlsx"')
+    print('[INFO] Models description of the best models saved into "./results_best/metrics_by_predictions_models.xlsx"')
 
 
 if __name__ == '__main__':
