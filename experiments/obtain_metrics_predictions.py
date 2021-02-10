@@ -16,13 +16,15 @@ def get_best_prediction(results, metric, model, dataset):
     """It calculates the best prediction of one model in one dataset"""
     model_rows = results.loc[results['MODEL'] == model, :]
     best_value = 9999999999
+    best_model = None
     for index, row in model_rows.iterrows():
+
         path_y_test_denorm = '../data/' + dataset + '/' + np.str(row['NORMALIZATION']) + '/' + \
                              np.str(row['PAST_HISTORY_FACTOR']) + '/'
 
         path_preds = '../results/' + dataset + '/' + np.str(row['NORMALIZATION']) + '/' + np.str(
-            row['PAST_HISTORY_FACTOR']) + '/' + np.str(row['EPOCHS']) + '/' + np.str(row['BATCH_SIZE']) + '/' + np.str(
-            row['LEARNING_RATE']) + '/' + model + '/' + np.str(row['MODEL_INDEX']) + '.npy'
+            row['PAST_HISTORY_FACTOR']) + '/' + np.str(int(row['EPOCHS'])) + '/' + np.str(int(row['BATCH_SIZE'])) + \
+            '/' + np.str(row['LEARNING_RATE']) + '/' + model + '/' + np.str(row['MODEL_INDEX']) + '.npy'
 
         y_test_denorm = np.load(path_y_test_denorm + 'y_test_denorm.np.npy').flatten()
         preds = np.load(path_preds).flatten()
@@ -31,7 +33,10 @@ def get_best_prediction(results, metric, model, dataset):
 
         if value < best_value:
             best_value = value
-            best_model = row['MODEL_DESCRIPTION']
+            best_model = 'normalization: ' + np.str(row['NORMALIZATION']) + ', past_history_factor: ' + \
+                         np.str(row['PAST_HISTORY_FACTOR']) + ', epochs: ' + np.str(row['EPOCHS']) + ', batch_size:  ' \
+                         + np.str(row['BATCH_SIZE']) + ', lr: ' + np.str(row['LEARNING_RATE']) + ', index:  ' + \
+                         np.str(row['MODEL_INDEX']) + ', description: ' + row['MODEL_DESCRIPTION']
 
     return best_value, best_model
 
